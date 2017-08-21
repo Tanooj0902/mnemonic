@@ -27,35 +27,37 @@ func testParamsAsJsonReader(id, password string) io.Reader {
 }
 
 func (t *PrivateKeyTest) TestCreateActionValidationWorksProperly() {
-
-	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", testParamsAsJsonReader("", "")).Send()
+	endPoint := t.BaseUrl() + "/private_key"
+	t.PostCustom(endPoint, "application/json", testParamsAsJsonReader("", "")).Send()
 	t.AssertStatus(422)
 	t.AssertContains("Id is required.")
 	t.AssertContains("Password is required.")
 
-	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", testParamsAsJsonReader("", "abcd")).Send()
+	t.PostCustom(endPoint, "application/json", testParamsAsJsonReader("", "abcd")).Send()
 	t.AssertStatus(422)
 	t.AssertContains("Id is required.")
 	t.AssertContains("Password must be at least 8 characters.")
 
-	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", testParamsAsJsonReader("test", "abcd")).Send()
+	t.PostCustom(endPoint, "application/json", testParamsAsJsonReader("test", "abcd")).Send()
 	t.AssertStatus(422)
 	t.AssertNotContains("Id is required.")
 	t.AssertContains("Password must be at least 8 characters.")
 
-	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", testParamsAsJsonReader("test", "abcdefgh")).Send()
+	t.PostCustom(endPoint, "application/json", testParamsAsJsonReader("test", "abcdefgh")).Send()
 	t.AssertStatus(200)
 	t.AssertNotContains("Id is required.")
 	t.AssertNotContains("Password must be at least 8 characters.")
 
-	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", testParamsAsJsonReader("test", "abcdefghasodijfasdlifjadsoifjaodsifjdsaifjadosifjasdoifjsdfdsfsdf")).Send()
+	t.PostCustom(endPoint, "application/json", testParamsAsJsonReader("test", "abcdefghasodijfasdlifjadsoifjaodsifjdsaifjadosifjasdoifjsdfdsfsdf")).Send()
 	t.AssertStatus(422)
 	t.AssertNotContains("Id is required.")
 	t.AssertContains("Password must be at most 64 characters.")
 }
 
 func (t *PrivateKeyTest) TestCreateActionGereratesKeyAndMneonics() {
-	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", testParamsAsJsonReader("12345", "abcdefgh")).Send()
+	endPoint := t.BaseUrl() + "/private_key"
+	
+	t.PostCustom(endPoint, "application/json", testParamsAsJsonReader("12345", "abcdefgh")).Send()
 	t.AssertOk()
 	t.AssertContentType("application/json; charset=utf-8")
 
