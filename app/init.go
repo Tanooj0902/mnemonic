@@ -58,7 +58,6 @@ var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
 //	}
 //}
 
-
 type notJsonReqestErrRes struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -72,18 +71,18 @@ var jsonDataBindAsActionArguments = func(c *revel.Controller, fc []revel.Filter)
 	if c.Request.ContentType != "application/json" {
 		fc[0](c, fc[1:])
 	} else {
-	    var jsonData map[string]string
-	    err := c.Params.BindJSON(&jsonData)
+		var jsonData map[string]string
+		err := c.Params.BindJSON(&jsonData)
 
-	    if err != nil {
+		if err != nil {
 			data := notJsonReqestErrRes{Code: 442, Message: "Not a valid Json request."}
 			c.Response.Status = 442
 			c.Result = c.RenderJSON(data)
 			return
-	    }
+		}
 
 		for k, v := range jsonData {
-		    c.Params.Values.Set(k, v)
+			c.Params.Values.Set(k, v)
 		}
 
 		fc[0](c, fc[1:])

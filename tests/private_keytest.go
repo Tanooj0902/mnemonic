@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"github.com/revel/revel/testing"
 	"encoding/json"
+	"github.com/revel/revel/testing"
 	"strings"
 )
 
@@ -34,7 +34,6 @@ func (t *PrivateKeyTest) TestCreateActionValidationWorksProperly() {
 	t.AssertStatus(422)
 	t.AssertContains("Id is required.")
 	t.AssertContains("Password must be at least 8 characters.")
-
 
 	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader(
 		`{"id":"test", "password":"abcd"}`,
