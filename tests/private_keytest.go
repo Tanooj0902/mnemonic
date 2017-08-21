@@ -2,7 +2,6 @@ package tests
 
 import (
 	"github.com/revel/revel/testing"
-	"net/url"
 	"encoding/json"
 	"strings"
 )
@@ -17,51 +16,52 @@ type MnemonicKeyTest struct {
 }
 
 func (t *PrivateKeyTest) TestCreateActionValidationWorksProperly() {
-	t.PostForm("/private_key", nil)
-	t.AssertStatus(422)
-	t.AssertContains("Id is required.")
-	t.AssertContains("Password is required.")
-	t.PostForm("/private_key", url.Values{
-		"id": {""}, "password": {""},
-	})
+	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader("{}")).Send()
 	t.AssertStatus(422)
 	t.AssertContains("Id is required.")
 	t.AssertContains("Password is required.")
 
-	t.PostForm("/private_key", url.Values{
-		"id": {""}, "password": {"abcd"},
-	})
+	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader(
+		`{"id": "", "password": ""}`,
+	)).Send()
+	t.AssertStatus(422)
+	t.AssertContains("Id is required.")
+	t.AssertContains("Password is required.")
+
+	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader(
+		`{"id": "", "password": "abcd"}`,
+	)).Send()
 	t.AssertStatus(422)
 	t.AssertContains("Id is required.")
 	t.AssertContains("Password must be at least 8 characters.")
 
 
-	t.PostForm("/private_key", url.Values{
-		"id": {"test"}, "password": {"abcd"},
-	})
+	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader(
+		`{"id":"test", "password":"abcd"}`,
+	)).Send()
 	t.AssertStatus(422)
 	t.AssertNotContains("Id is required.")
 	t.AssertContains("Password must be at least 8 characters.")
 
-	t.PostForm("/private_key", url.Values{
-		"id": {"test"}, "password": {"abcdefgh"},
-	})
+	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader(
+		`{"id": "test", "password": "abcdefgh"}`,
+	)).Send()
 	t.AssertStatus(200)
 	t.AssertNotContains("Id is required.")
 	t.AssertNotContains("Password must be at least 8 characters.")
 
-	t.PostForm("/private_key", url.Values{
-		"id": {"test"}, "password": {"abcdefghasodijfasdlifjadsoifjaodsifjdsaifjadosifjasdoifjsdfaidsfjasiodjfasiodfjasdoifj"},
-	})
+	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader(
+		`{"id": "test", "password": "abcdefghasodijfasdlifjadsoifjaodsifjdsaifjadosifjasdoifjsdfaidsfjasiodjfasiodfjasdoifj"}`,
+	)).Send()
 	t.AssertStatus(422)
 	t.AssertNotContains("Id is required.")
 	t.AssertContains("Password must be at most 64 characters.")
 }
 
 func (t *PrivateKeyTest) TestCreateActionGereratesKeyAndMneonics() {
-	t.PostForm("/private_key", url.Values{
-		"id": {"12345"}, "password": {"abcdefgh"},
-	})
+	t.PostCustom((t.BaseUrl() + "/private_key"), "application/json", strings.NewReader(
+		`{"id": "12345", "password": "abcdefgh"}`,
+	)).Send()
 	t.AssertOk()
 	t.AssertContentType("application/json; charset=utf-8")
 
