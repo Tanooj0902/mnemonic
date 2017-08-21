@@ -64,12 +64,38 @@ revel run $GOPATH/src/<path_to_project>/mnemonic prod
 
 Go to http://localhost:9000/ and you'll see it running
 
+### API sample
+
+```
+POST /private_key
+
+Content-Type application/json
+
+BODY JSON
+```
+
+Sample request body
+```
+{
+    "id": "123",
+    "password": "sdfsdfsdf"
+}
+```
+
+Sample response
+```
+{
+    "key": "xprv9wshmRFzFW3MURnzWJPU8B67EKJmqjkF4TGJ9JGKqeKMCoEMmWUNngRWujk5Dq8Rsbt3JDw2nXQN2zj5Sk7ycqmPXgJgmKW5mCLhe2dRddU",
+    "mnemonic": "brisk tortoise culture tumble pistol weekend section honey art throw topple goose item script doctor social swallow trigger garment govern kid host ecology hollow"
+}
+```
+
 ### Run tests
 ```
 revel test $GOPATH/src/<path_to_project>/mnemonic dev
 ```
 
-You can lso run tests from browser by running this application in development mode and navigation to http://localhost:9000/@tests
+You can also run tests from browser by running this application in development mode and navigation to http://localhost:9000/@tests
 
 ### Build
 ```
