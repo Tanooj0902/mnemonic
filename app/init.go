@@ -19,6 +19,7 @@ func init() {
 		revel.RouterFilter,            // Use the routing table to select the right Action
 		revel.FilterConfiguringFilter, // A hook for adding or removing per-Action filters.
 		revel.ParamsFilter,            // Parse parameters into Controller.Params.
+		jsonDataBindAsActionArguments,
 		// revel.SessionFilter,           // Restore and write the session cookie.
 		// revel.FlashFilter,             // Restore and write the flash cookie.
 		revel.ValidationFilter, // Restore kept validation errors and save new ones from cookie.
@@ -56,3 +57,35 @@ var HeaderFilter = func(c *revel.Controller, fc []revel.Filter) {
 //		// Dev mode
 //	}
 //}
+
+
+type notJsonReqestErrRes struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+// This will work only for the single level keys in the JSON, now this is the limitaion we can not directly overcome.
+// Instead we will have to change the type of url.Values and make modifications accordingly
+// Can be done but for this test task I am ignoring it.
+var jsonDataBindAsActionArguments = func(c *revel.Controller, fc []revel.Filter) {
+
+	if c.Request.ContentType != "application/json" {
+		fc[0](c, fc[1:])
+	} else {
+	    var jsonData map[string]string
+	    err := c.Params.BindJSON(&jsonData)
+
+	    if err != nil {
+			data := notJsonReqestErrRes{Code: 442, Message: "Not a valid Json request."}
+			c.Response.Status = 442
+			c.Result = c.RenderJSON(data)
+			return
+	    }
+
+		for k, v := range jsonData {
+		    c.Params.Values.Set(k, v)
+		}
+
+		fc[0](c, fc[1:])
+	}
+}
